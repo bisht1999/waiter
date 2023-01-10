@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Waiter's life</title>
+</head>
+<body>
+
+    <form action="">
+        <label for="">Choose Price:</label>
+        <input type="number" name="price" id="price">
+        <label for="">Choose Dish:</label>
+        <input type="text" name="dish" id="dish">
+        <label for="">Choose Table:</label>
+        
+    <select name="table" id="table">
+    <option value="table1">Table1</option>
+    <option value="table2">Table2</option>
+    <option value="table3">Table3</option>
+    <option value="table4">Table4</option>
+    </select>
+    
+    <button>Add to bill</button>
+
+    </form>
+
+    <ul id='listOfDishes'></ul>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/axios/1.2.2/axios.min.js"></script>
+        <script>
+            function saveToLocalStorage(event) {
+                event.preventDefault();
+                const Price = event.target.price.value;
+                const Dish = event.target.dish.value;
+                
+                const obj = {
+                   Price,
+                   Dish
+                }
+                localStorage.setItem(obj.Dish, JSON.stringify(obj))
+                axios.post("https://crudcrud.com/api/8b92633ab5db4cb2a9ac814177ef8417/Dishes",obj)
+                .then((response)=>{
+                   showNewDishOnScreen(response.data)
+                })
+                .catch((err)=>{
+                    console.log(err)
+                })
+                
+            }
+
+            window.addEventListener("DOMContentLoaded", () => {
+                axios.get("https://crudcrud.com/api/8b92633ab5db4cb2a9ac814177ef8417/Dishes")
+                .then((response)=>{
+                    console.log(response)
+                    for(var i=0;i<response.data.length;i++){
+                        showNewDishOnScreen(response.data[i]);
+                    }
+                })
+                .catch((error)=>{
+                    console.log(error)
+                })
+               
+            })
+
+            function showNewDishOnScreen(Dishes){
+                document.getElementById('price').value = '';
+                document.getElementById('dish').value = '';
+                
+                if(localStorage.getItem(Dishes.dish) !== null){
+                    removeDishFromScreen(Dishes.dish)
+                }
+
+                const parentNode = document.getElementById('listOfDishes');
+                const childHTML = `<li id=${Dishes.price}> ${Dishes.dish} - ${Dishes.price}
+                                        <button onclick=deleteDish('${Dishes.dish}')> Delete dish </button>
+                                     </li>`
+
+                parentNode.innerHTML = parentNode.innerHTML + childHTML;
+            }
+
+            
+
+            
+
+            function deleteDish(dish){
+                console.log(dish)
+                localStorage.removeItem(dish);
+                removeDishFromScreen(dish);
+
+            }
+
+            function removeDishFromScreen(dish){
+                const parentNode = document.getElementById('listOfDishes');
+                const childNodeToBeDeleted = document.getElementById(dish);
+                if(childNodeToBeDeleted) {
+                    parentNode.removeChild(childNodeToBeDeleted)
+                }
+            }
+
+        </script>
+
+    
+</body>
+</html>
